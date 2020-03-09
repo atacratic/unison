@@ -559,16 +559,16 @@ components :: Var v => [(v, Term f v a)] -> [[(v, Term f v a)]]
 components = Components.components freeVars
 
 -- Converts to strongly connected components while preserving the
--- order of definitions. Satisfies `join (orderedComponents bs) == bs`. 
+-- order of definitions. Satisfies `join (orderedComponents bs) == bs`.
 orderedComponents' :: Var v => [(v, Term f v a)] -> [[(v, Term f v a)]]
-orderedComponents' tms = go [] Set.empty tms 
+orderedComponents' tms = go [] Set.empty tms
   where
   go [] _ [] = []
   go [] deps (hd:rem) = go [hd] (deps <> freeVars (snd hd)) rem
   go cur deps rem = case findIndex isDep rem of
     Nothing -> reverse cur : let (hd,tl) = splitAt 1 rem
                              in go hd (depsFor hd) tl
-    Just i  -> go (reverse newMembers ++ cur) deps' (drop (i+1) rem) 
+    Just i  -> go (reverse newMembers ++ cur) deps' (drop (i+1) rem)
                where deps' = deps <> depsFor newMembers
                      newMembers = take (i+1) rem
     where
@@ -576,7 +576,7 @@ orderedComponents' tms = go [] Set.empty tms
     isDep (v, _) = Set.member v deps
 
 -- Like `orderedComponents'`, but further break up cycles and move
--- cyclic subcycles before other components in the same cycle. 
+-- cyclic subcycles before other components in the same cycle.
 -- Tweak suggested by @aryairani.
 --
 -- Example: given `[[x],[ping,r,s,pong]]`, where `ping` and `pong`
@@ -587,7 +587,7 @@ orderedComponents bs0 = tweak =<< orderedComponents' bs0 where
   tweak :: Var v => [(v,Term f v a)] -> [[(v,Term f v a)]]
   tweak bs@(_:_:_) = case takeWhile isCyclic (components bs) of
     [] -> [bs]
-    cycles -> cycles <> orderedComponents rest 
+    cycles -> cycles <> orderedComponents rest
       where
       rest = [ (v,b) | (v,b) <- bs, Set.notMember v cycleVars ]
       cycleVars = Set.fromList (fst <$> join cycles)
@@ -608,6 +608,12 @@ hashComponent byName = let
   sortedHashed = sortOn snd hashed
   overallHash = Hashable.accumulate (Hashable.Hashed . snd <$> sortedHashed)
   in (overallHash, [ (v, t) | ((v, _),_) <- sortedHashed, Just t <- [Map.lookup v byName] ])
+
+-- ! TODO topic/syntaxtext-markup (just FYI here)
+-- ! The hashing algorithm has some subtleties around terms that mutually depend on each other.
+-- ! But this code might not help you make sense of it.  If you need to understand this stuff
+-- ! to make use of the Pos and Size stuff in Reference, then try searching slack for 'cycle',
+-- ! or looking at https://www.unisonweb.org/docs/faq#how-does-hashing-work-for-mutually-recursive-definitions
 
 -- Group the definitions into strongly connected components and hash
 -- each component. Substitute the hash of each component into subsequent

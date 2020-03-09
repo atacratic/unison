@@ -51,6 +51,10 @@ pattern Derived h i n = DerivedId (Id h i n)
 --{-# COMPLETE Builtin, Derived #-}
 
 data Id = Id H.Hash Pos Size deriving (Eq,Ord,Generic)
+-- ! TODO topic/syntaxtext-markup (just FYI here)
+-- ! Reference contains (usually - but not for builtins) an Id which contains a hash.
+-- ! I guess you ought to also need the Pos and Size as well, to handle cycles - note the
+-- ! comment above in the declaration of Reference, and see the note I added in ABT.hs.
 
 unsafeId :: Reference -> Id
 unsafeId (Builtin b) =

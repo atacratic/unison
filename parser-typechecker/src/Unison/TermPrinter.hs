@@ -168,9 +168,20 @@ pretty0
       where name = elideFQN im $ HQ.unsafeFromVar (Var.reset v)
     Ref' r -> parenIfInfix name ic $ styleHashQualified'' (fmt S.Reference) name
       where name = elideFQN im $ PrettyPrintEnv.termName n (Referent.Ref r)
+-- ! TODO topic/syntaxtext-markup
+-- ! We're interested first in the Ref' case above.
+-- ! "PrettyPrintEnv.termName n (Referent.Ref r)" is the FQN. (elideFQN strips some
+-- ! prefix off it, as much as it can without introducing ambiguity.)
+-- ! At the moment the name's SyntaxText is being formatted with (fmt S.Reference) -
+-- ! we want to be also supplying a hash and FQN.
+-- ! r is the Reference, it contains the hash (except for builtins.)
     TermLink' r -> parenIfInfix name ic $
       fmt S.LinkKeyword "termLink " <> styleHashQualified'' (fmt S.Reference) name
       where name = elideFQN im $ PrettyPrintEnv.termName n r
+-- ! TODO topic/syntaxtext-markup
+-- ! "Go through the places in TermPrinter.hs and TypePrinter.hs where we use a PrettyPrintEnv,
+-- ! and for most of them add the extra FQN info for the SyntaxText markup (currently the
+-- ! markup is added with fmt)."
     TypeLink' r -> parenIfInfix name ic $
       fmt S.LinkKeyword "typeLink " <> styleHashQualified'' (fmt S.Reference) name
       where name = elideFQN im $ PrettyPrintEnv.typeName n r

@@ -2,7 +2,12 @@ module Unison.Util.SyntaxText where
 
 import Unison.Prelude
 
+-- ! TODO topic/syntaxtext-markup
+-- ! I've sketched out changes in here, which will break compilation...
+
 import Unison.Util.AnnotatedText      ( AnnotatedText(..), annotate )
+import Referent as R
+import Data.Text (Text)
 
 type SyntaxText = AnnotatedText Element
 
@@ -13,9 +18,9 @@ data Element = NumericLiteral
              | BooleanLiteral
              | Blank
              | Var
-             | Reference
-             | Constructor
-             | Request
+             | Reference ReferentInfo
+             | Constructor ReferentInfo
+             | Request ReferentInfo
              | AbilityBraces
              -- let|handle|in|where|match|with|cases|->|if|then|else|and|or
              | ControlKeyword
@@ -26,7 +31,7 @@ data Element = NumericLiteral
              -- type|ability
              | DataTypeKeyword
              | DataTypeParams
-             | DataType
+             | DataType ReferentInfo
              -- unique
              | DataTypeModifier
              -- `use Foo bar` is keyword, prefix, suffix
@@ -47,6 +52,16 @@ data Element = NumericLiteral
              -- the 'include' in @[include], etc
              | DocKeyword
              deriving (Eq, Ord, Bounded, Enum, Show, Read)
+
+-- A Referent (typically including a term hash), and a corresponding FQN.  Useful
+-- for providing more detail when rendering terms to the reader.
+-- The pretty-printed source may not otherwise include the whole FQN - it may have been
+-- abbreviated by dropping some prefix of the name.
+type ReferentInfo = ReferentInfo R.Referent Text
+-- ! TODO topic/syntaxtext-markup
+-- ! In the Reference and DataType case you can hopefully use Referent.Ref to wrap and
+-- ! get a Referent, same as line 170 of TermPrinter.hs.  If that ends turning into a hack
+-- ! you can define `type ReferenceInfo = ReferenceInfo R.Reference Text` as well.
 
 syntax :: Element -> SyntaxText -> SyntaxText
 syntax = annotate

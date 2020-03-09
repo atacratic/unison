@@ -71,6 +71,8 @@ styleHashQualified'' :: (Pretty SyntaxText -> Pretty SyntaxText)
                      -> HQ.HashQualified
                      -> Pretty SyntaxText
 styleHashQualified'' nameStyle = styleHashQualified' nameStyle (fmt S.HashQualifier)
+-- ! TODO topic/syntaxtext-markup (just FYI here)
+-- ! nameStyle is the formatter applied to the bit before the hash in myName#sn278j232
 
 fmt :: S.Element -> Pretty S.SyntaxText -> Pretty S.SyntaxText
 fmt = PP.withSyntax
